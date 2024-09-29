@@ -35,7 +35,7 @@ function Admin_nav() {
       icon: <UserAddOutlined />,
     },
     {
-      label: <Link to="/admin/all_student">Services</Link>,
+      label: <Link to="/admin/services">Services</Link>,
       key: 'Services',
       icon: <EditOutlined />,
     },

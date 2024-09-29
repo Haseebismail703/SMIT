@@ -1,65 +1,69 @@
 import React, { useState } from 'react';
 import { Card, Row, Col, Form, Input, Button, Upload, message } from 'antd';
 import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-
-
+import Admin_nav from '../Admin_comp/Admin_navbar'
 const { Meta } = Card;
 
 const ServicesPage = () => {
-  // Sample initial data for services
+
   const initialServices = [
     {
       title: 'Cloud Hosting',
       description: 'Reliable cloud hosting services with 24/7 support.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg'
+      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
     },
     {
       title: 'Custom Software Development',
       description: 'We provide custom software solutions to meet your business needs.',
-     image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg'
+      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
     },
     {
       title: 'AI Integration',
       description: 'Integrate AI-powered solutions for business automation.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg'
+      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
     },
     {
       title: 'Cybersecurity',
       description: 'Top-tier security services to protect your digital assets.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg'
-    }
+      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
+    },
   ];
 
-  // State to hold the list of services
+
   const [services, setServices] = useState(initialServices);
 
-  // State to manage image upload
-  const [uploadedImage, setUploadedImage] = useState('');
 
-  // Handle form submission to add new service
+  const [fileList, setFileList] = useState([]);
+
+
   const onFinish = (values) => {
     const newService = {
       title: values.title,
       description: values.description,
-      image: uploadedImage || 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg', // Default image if none is uploaded
+      image:
+        fileList.length > 0
+          ? URL.createObjectURL(fileList[0].originFileObj)
+          : 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',  
     };
 
-    setServices([...services, newService]); // Add new service to the list
+    setServices([...services, newService]); 
+    setFileList([]); 
     message.success('Service added successfully!');
   };
 
-  // Handle image upload
+  //  image upload
   const handleImageUpload = (info) => {
+    let newFileList = [...info.fileList];
+    setFileList(newFileList); 
+
     if (info.file.status === 'done') {
-      const imageUrl = URL.createObjectURL(info.file.originFileObj);
-      setUploadedImage(imageUrl);
       message.success(`${info.file.name} file uploaded successfully.`);
     } else if (info.file.status === 'error') {
       message.error(`${info.file.name} file upload failed.`);
     }
   };
 
-  // Delete service from the list
+  // Delete service 
   const deleteService = (index) => {
     const newServices = services.filter((_, i) => i !== index);
     setServices(newServices);
@@ -67,6 +71,8 @@ const ServicesPage = () => {
   };
 
   return (
+    <>
+    <Admin_nav/>
     <div className="services-container">
       {/* Service Form */}
       <Row justify="center">
@@ -93,8 +99,9 @@ const ServicesPage = () => {
               <Upload
                 name="image"
                 listType="picture"
-                maxCount={1}
+                fileList={fileList} 
                 onChange={handleImageUpload}
+                maxCount={1}
               >
                 <Button icon={<UploadOutlined />}>Upload Image</Button>
               </Upload>
@@ -122,7 +129,7 @@ const ServicesPage = () => {
                   key="delete"
                   onClick={() => deleteService(index)}
                   style={{ color: 'red' }}
-                />
+                />,
               ]}
             >
               <Meta title={service.title} description={service.description} />
@@ -131,6 +138,7 @@ const ServicesPage = () => {
         ))}
       </Row>
     </div>
+    </>
   );
 };
 
