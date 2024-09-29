@@ -1,70 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Button, Modal, Form, Input, message, Layout } from 'antd';
-import axios from 'axios';
 import { DeleteOutlined } from '@ant-design/icons';
+import axios from 'axios';
 import Admin_nav from '../Admin_comp/Admin_navbar';
 
 const { Content } = Layout;
 
 const NewMemberTable = () => {
-    // State for the modal visibility, table data, and form reference
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [dataSource, setDataSource] = useState([]);
     const [form] = Form.useForm();
 
-    // Function to fetch members data
     const fetchMembers = async () => {
         try {
             const response = await axios.get(`${url}/admin/teammember`);
             setDataSource(response.data);
-            
-        } catch (error) {
+        } catch {
             message.error('Failed to fetch members');
         }
     };
 
-    // Fetch members when the component mounts
     useEffect(() => {
         fetchMembers();
     }, []);
 
-    // Function to show the modal
-    const showModal = () => {
-        setIsModalVisible(true);
-    };
-
-    // Function to handle modal close
+    const showModal = () => setIsModalVisible(true);
     const handleCancel = () => {
         setIsModalVisible(false);
         form.resetFields();
     };
 
-    // Function to handle form submission to add a new member
     const onFinish = async (values) => {
-        console.log(values);
         try {
-            const response = await axios.post(`${url}/admin/teammember`, values); // Replace with your API endpoint
-            // setDataSource([...dataSource, { ...response.data, key: response.data.id }]);
+            const response = await axios.post(`${url}/admin/teammember`, values);
             message.success('New member added successfully');
             setIsModalVisible(false);
             form.resetFields();
-        } catch (error) {
+        } catch {
             message.error('Failed to add member');
         }
     };
 
-    // Function to handle member deletion
     const handleDelete = async (key) => {
         try {
-            await axios.delete(`https://your-api-url.com/members/${key}`); // Replace with your API endpoint
-            setDataSource(dataSource.filter((item) => item.key !== key));
+            await axios.delete(`${url}/members/${key}`);
+            setDataSource(dataSource.filter((item) => item._id !== key));
             message.success('Member deleted successfully');
-        } catch (error) {
+        } catch {
             message.error('Failed to delete member');
         }
     };
 
-    // Table columns
     const columns = [
         {
             title: 'Name',
@@ -75,6 +61,16 @@ const NewMemberTable = () => {
             title: 'Email',
             dataIndex: 'email',
             key: 'email',
+        },
+        {
+            title: 'Phone',
+            dataIndex: 'phone',
+            key: 'phone',
+        },
+        {
+            title: 'Address',
+            dataIndex: 'address',
+            key: 'address',
         },
         {
             title: 'Expertise',
@@ -96,80 +92,88 @@ const NewMemberTable = () => {
     return (
         <div>
             <Admin_nav />
-            <>
-                <center>
-                    <h1>All Members</h1>
-                </center>
-                <Button
-                    type="primary"
-                    onClick={showModal}
-                    style={{ marginBottom: '16px', marginLeft: 75 }}
+            <center>
+                <h1>All Members</h1>
+            </center>
+            <Button
+                type="primary"
+                onClick={showModal}
+                style={{ marginBottom: '16px', marginLeft: 75 }}
+            >
+                Add New Member
+            </Button>
+            <Content style={{ padding: '0 48px' }}>
+                <div
+                    style={{
+                        padding: 24,
+                        minHeight: 380,
+                        background: '#fff',
+                        borderRadius: '8px',
+                    }}
                 >
-                    Add New Member
-                </Button>
-                <Content style={{ padding: '0 48px' }}>
-                    <div
-                        style={{
-                            padding: 24,
-                            minHeight: 380,
-                            background: '#fff',
-                            borderRadius: '8px',
-                        }}
+                    <Table
+                        dataSource={dataSource}
+                        columns={columns}
+                        scroll={{ x: '100%' }}
+                        pagination={{ pageSize: 5 }}
+                    />
+                </div>
+            </Content>
+
+            <Modal
+                title="Add New Member"
+                open={isModalVisible}
+                onCancel={handleCancel}
+                footer={null}
+            >
+                <Form form={form} layout="vertical" onFinish={onFinish}>
+                    <Form.Item
+                        label="Name"
+                        name="name"
+                        rules={[{ required: true, message: 'Please input the name!' }]}
                     >
-                        {/* Table to display the data */}
-                        <Table
-                            dataSource={dataSource}
-                            columns={columns}
-                            scroll={{ x: '100%' }}
-                            pagination={{ pageSize: 5 }}
-                        />
-                    </div>
-                </Content>
+                        <Input placeholder="Enter name" />
+                    </Form.Item>
 
-                {/* Modal for adding new member */}
-                <Modal
-                    title="Add New Member"
-                    open={isModalVisible}
-                    onCancel={handleCancel}
-                    footer={null}
-                >
-                    <Form
-                        form={form}
-                        layout="vertical"
-                        onFinish={onFinish}
+                    <Form.Item
+                        label="Email"
+                        name="email"
+                        rules={[{ required: true, message: 'Please input the email!' }]}
                     >
-                        <Form.Item
-                            label="Name"
-                            name="name"
-                            rules={[{ required: true, message: 'Please input the name!' }]}
-                        >
-                            <Input placeholder="Enter name" />
-                        </Form.Item>
+                        <Input placeholder="Enter email" />
+                    </Form.Item>
 
-                        <Form.Item
-                            label="Email"
-                            name="email"
-                            rules={[{ required: true, message: 'Please input the email!' }]}
-                        >
-                            <Input placeholder="Enter email" />
-                        </Form.Item>
+                    <Form.Item
+                        label="Phone"
+                        name="phone"
+                        rules={[{ required: true, message: 'Please input the phone number!' }]}
+                    >
+                        <Input placeholder="Enter phone number" />
+                    </Form.Item>
 
-                        <Form.Item
-                            label="Expertise"
-                            name="expertise"
-                            rules={[{ required: true, message: 'Please input the expertise!' }]}
-                        >
-                            <Input placeholder="Enter expertise" />
-                        </Form.Item>
+                    <Form.Item
+                        label="Address"
+                        name="address"
+                        rules={[{ required: true, message: 'Please input the address!' }]}
+                    >
+                        <Input placeholder="Enter address" />
+                    </Form.Item>
 
-                        <Form.Item>
-                            <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
-                                Add Member
-                            </Button>
-                        </Form.Item>
-                    </Form>
-                </Modal>
-            </>
+                    <Form.Item
+                        label="Expertise"
+                        name="expertise"
+                        rules={[{ required: true, message: 'Please input the expertise!' }]}
+                    >
+                        <Input placeholder="Enter expertise" />
+                    </Form.Item>
+
+                    <Form.Item>
+                        <Button type="primary" htmlType="submit" style={{ width: '100%' }}>
+                            Add Member
+                        </Button>
+                    </Form.Item>
+                </Form>
+            </Modal>
         </div>
     );
 };
