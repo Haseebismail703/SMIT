@@ -85,14 +85,9 @@ function Allstudent() {
             key: 'key',
         },
         {
-            title: 'First Name',
-            dataIndex: 'firstName',
+            title: 'Name',
+            dataIndex: 'Name',
             key: 'firstName',
-        },
-        {
-            title: 'Last Name',
-            dataIndex: 'lastName',
-            key: 'lastName',
         },
         {
             title: 'Email',
@@ -110,7 +105,7 @@ function Allstudent() {
             key: 'submittedAt',
         },
         {
-            title: 'Description',
+            title: 'Action',
             key: 'action',
             render: (text, record) => (
                 <>
@@ -175,7 +170,7 @@ function Allstudent() {
                     </Carousel>
                     <>
                         <center>
-                            <h1>All requested</h1>
+                            <h1>All Career Request </h1>
                         </center>
                         {/* Table to display the data */}
                         <Table dataSource={dataSource} columns={columns} scroll={{ x: '100%' }} pagination={{ pageSize: 5 }} />
@@ -198,7 +193,7 @@ function Allstudent() {
                                     <p><strong>Email:</strong> {currentRecord.email}</p>
                                     <p><strong>Token:</strong> {currentRecord.token}</p>
                                     <p><strong>Submitted At:</strong> {currentRecord.submittedAt}</p> */}
-                                    <p><strong></strong> {currentRecord.description}</p>
+                                    <p><strong>Link</strong> {currentRecord.description}</p>
                                 </div>
                             )}
                         </Modal>

@@ -39,6 +39,11 @@ function Admin_nav() {
       key: 'Services',
       icon: <EditOutlined />,
     },
+    {
+      label: <Link to="/admin/add_job">Add job</Link>,
+      key: 'Add_job',
+      icon: <EditOutlined />,
+    },
   ];
   return (
     <div>

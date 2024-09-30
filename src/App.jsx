@@ -3,6 +3,8 @@ import Request from './Admin_pages/Reaquest';
 import Team_member from './Admin_pages/Team_member';
 import Services from './Admin_pages/Services';
 import Admin_login from './Admin_pages/Admin_login';
+import Career from './Admin_pages/Career';
+import Add_job from './Admin_pages/Add_job';
 function App() {
   return (
     <Router>
@@ -11,6 +13,8 @@ function App() {
         <Route path="/admin/Team_member" element={<Team_member />} />
         <Route path="/admin/services" element={<Services />} />
         <Route path="/admin/login" element={<Admin_login />} />
+        <Route path="/admin/career" element={<Career />} />
+        <Route path="/admin/add_job" element={<Add_job />} />
       </Routes>
     </Router>
   );
