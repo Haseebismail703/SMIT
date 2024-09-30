@@ -100,6 +100,11 @@ function Allstudent() {
             key: 'token',
         },
         {
+            title: 'Job_titile',
+            dataIndex: 'Job_titile',
+            key: 'Job_titile',
+        },
+        {
             title: 'Submitted At',
             dataIndex: 'createdAt',
             key: 'submittedAt',
