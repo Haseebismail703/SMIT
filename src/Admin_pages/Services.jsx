@@ -1,145 +1,138 @@
 import React, { useState } from 'react';
-import { Card, Row, Col, Form, Input, Button, Upload, message } from 'antd';
-import { UploadOutlined, DeleteOutlined } from '@ant-design/icons';
-import Admin_nav from '../Admin_comp/Admin_navbar'
-const { Meta } = Card;
+import { Modal, Button, Form, Input, Upload, Table, message, Row, Col, Card } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
 
-const ServicesPage = () => {
+const Services = () => {
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [services, setServices] = useState([]);
+  const [fileList, setFileList] = useState([]); // State to handle file list
+  const [form] = Form.useForm();
 
-  const initialServices = [
+  const columns = [
     {
-      title: 'Cloud Hosting',
-      description: 'Reliable cloud hosting services with 24/7 support.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
+      title: '#',
+      dataIndex: 'KEY',
+      key: 'key',
     },
     {
-      title: 'Custom Software Development',
-      description: 'We provide custom software solutions to meet your business needs.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
+      title: 'Service Title',
+      dataIndex: 'title',
+      key: 'title',
     },
     {
-      title: 'AI Integration',
-      description: 'Integrate AI-powered solutions for business automation.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
+      title: 'Service Description',
+      dataIndex: 'description',
+      key: 'description',
     },
     {
-      title: 'Cybersecurity',
-      description: 'Top-tier security services to protect your digital assets.',
-      image: 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',
+      title: 'Image',
+      dataIndex: 'image',
+      key: 'image',
+      render: (image) => <img src={image} alt="service" style={{ width: 50 }} />,
     },
   ];
 
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
 
-  const [services, setServices] = useState(initialServices);
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    setFileList([]); // Clear the file list when closing the modal
+  };
 
+  const handleFileChange = ({ fileList }) => {
+    setFileList(fileList); // Update fileList state when file is uploaded
+  };
 
-  const [fileList, setFileList] = useState([]);
+  const handleFinish = (values) => {
+    if (fileList.length === 0) {
+      message.error('Please upload an image!');
+      return;
+    }
 
-
-  const onFinish = (values) => {
     const newService = {
-      title: values.title,
-      description: values.description,
-      image:
-        fileList.length > 0
-          ? URL.createObjectURL(fileList[0].originFileObj)
-          : 'https://dcastalia.com/blog/wp-content/uploads/2023/03/Iinformation-technology.jpg',  
+      ...values,
+      image: URL.createObjectURL(fileList[0].originFileObj), // Use the first file uploaded
     };
 
-    setServices([...services, newService]); 
-    setFileList([]); 
+    setServices([...services, newService]);
+    setIsModalVisible(false);
     message.success('Service added successfully!');
-  };
-
-  //  image upload
-  const handleImageUpload = (info) => {
-    let newFileList = [...info.fileList];
-    setFileList(newFileList); 
-
-    if (info.file.status === 'done') {
-      message.success(`${info.file.name} file uploaded successfully.`);
-    } else if (info.file.status === 'error') {
-      message.error(`${info.file.name} file upload failed.`);
-    }
-  };
-
-  // Delete service 
-  const deleteService = (index) => {
-    const newServices = services.filter((_, i) => i !== index);
-    setServices(newServices);
-    message.success('Service deleted successfully.');
+    form.resetFields();
+    setFileList([]); // Clear the file list after submission
   };
 
   return (
-    <>
-    <Admin_nav/>
-    <div className="services-container">
-      {/* Service Form */}
-      <Row justify="center">
-        <Col span={24} md={12}>
-          <h2>Add New Service</h2>
-          <Form layout="vertical" onFinish={onFinish}>
-            <Form.Item
-              name="title"
-              label="Service Title"
-              rules={[{ required: true, message: 'Please input the service title!' }]}
-            >
-              <Input placeholder="Enter service title" />
-            </Form.Item>
-
-            <Form.Item
-              name="description"
-              label="Service Description"
-              rules={[{ required: true, message: 'Please input the service description!' }]}
-            >
-              <Input.TextArea rows={4} placeholder="Enter service description" />
-            </Form.Item>
-
-            <Form.Item name="image" label="Service Image">
-              <Upload
-                name="image"
-                listType="picture"
-                fileList={fileList} 
-                onChange={handleImageUpload}
-                maxCount={1}
-              >
-                <Button icon={<UploadOutlined />}>Upload Image</Button>
-              </Upload>
-            </Form.Item>
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit">
-                Add Service
-              </Button>
-            </Form.Item>
-          </Form>
+    <div style={{ padding: '20px' }}>
+      <Row gutter={[16, 16]}>
+        <Col xs={24} md={12} lg={8}>
+          <Button type="primary" onClick={showModal}>
+            Add Service
+          </Button>
         </Col>
       </Row>
 
-      {/* Display Services */}
-      <Row gutter={[16, 16]} justify="center" style={{ marginTop: '20px' }}>
-        {services.map((service, index) => (
-          <Col xs={24} sm={12} md={8} lg={6} key={index} className="service-column">
-            <Card
-              hoverable
-              cover={<img alt={service.title} src={service.image} />}
-              className="service-card"
-              actions={[
-                <DeleteOutlined
-                  key="delete"
-                  onClick={() => deleteService(index)}
-                  style={{ color: 'red' }}
-                />,
-              ]}
+      {/* Modal to add new service */}
+      <Modal
+        title="Add Service"
+        open={isModalVisible}
+        onCancel={handleCancel}
+        footer={null}
+        destroyOnClose
+      >
+        <Form form={form} layout="vertical" onFinish={handleFinish}>
+          <Form.Item
+            name="title"
+            label="Service Title"
+            rules={[{ required: true, message: 'Please enter the service title!' }]}
+          >
+            <Input placeholder="Enter service title" />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="Service Description"
+            rules={[{ required: true, message: 'Please enter the service description!' }]}
+          >
+            <Input.TextArea placeholder="Enter service description" />
+          </Form.Item>
+          <Form.Item
+            name="image"
+            label="Upload Image"
+            rules={[{ required: true, message: 'Please upload an image!' }]}
+          >
+            <Upload
+              beforeUpload={() => false} // Prevent automatic upload
+              fileList={fileList} // Use fileList to manage the uploaded files
+              onChange={handleFileChange}
+              listType="picture"
             >
-              <Meta title={service.title} description={service.description} />
-            </Card>
-          </Col>
-        ))}
+              <Button icon={<UploadOutlined />}>Click to Upload</Button>
+            </Upload>
+          </Form.Item>
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block>
+              Submit
+            </Button>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* Display services inside a Card */}
+      <Row gutter={[16, 16]}>
+        <Col xs={24}>
+          <Card title="Services List" style={{ marginTop: '20px' }}>
+            <Table
+              columns={columns}
+              dataSource={services}
+              rowKey={(record) => record.title}
+              pagination={{ pageSize: 5 }}
+            />
+          </Card>
+        </Col>
       </Row>
     </div>
-    </>
   );
 };
 
-export default ServicesPage;
+export default Services;

@@ -1,6 +1,20 @@
 import React, { useState } from "react";
-import { Form, Input, Button, Row, Col, Card, List, message, DatePicker, Select } from "antd";
-import { MinusCircleOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+  Form,
+  Input,
+  Button,
+  Row,
+  Col,
+  Card,
+  List,
+  message,
+  DatePicker,
+  Select,
+  Table,
+  Modal,
+  Popconfirm
+} from "antd";
+import { MinusCircleOutlined, PlusOutlined, DeleteOutlined } from "@ant-design/icons";
 import Admin_nav from "../Admin_comp/Admin_navbar";
 
 const { Option } = Select;
@@ -9,7 +23,22 @@ const AddJobForm = () => {
   const [form] = Form.useForm();
   const [requirements, setRequirements] = useState([]);
   const [requirement, setRequirement] = useState("");
+  const [jobs, setJobs] = useState([]); // State to store job submissions
+  const [isModalVisible, setIsModalVisible] = useState(false); // State for modal visibility
 
+  // Show modal to add job
+  const showModal = () => {
+    setIsModalVisible(true);
+  };
+
+  // Handle modal close
+  const handleCancel = () => {
+    setIsModalVisible(false);
+    form.resetFields();
+    setRequirements([]);
+  };
+
+  // Add job requirement
   const handleAddRequirement = () => {
     if (requirement.trim()) {
       setRequirements([...requirements, requirement]);
@@ -20,31 +49,102 @@ const AddJobForm = () => {
     }
   };
 
+  // Delete job requirement
   const handleDeleteRequirement = (index) => {
     const updatedRequirements = requirements.filter((_, i) => i !== index);
     setRequirements(updatedRequirements);
     message.success("Requirement deleted!");
   };
 
+  // Submit job form
   const onFinish = (values) => {
     const jobData = {
       ...values,
-      requirements
+      requirements,
+      deadline: values.deadline ? values.deadline.format("YYYY-MM-DD") : null
     };
-    console.log("Job data submitted: ", jobData);
+    setJobs([...jobs, jobData]); // Add the new job to the job list
     message.success("Job submitted successfully!");
     form.resetFields();
     setRequirements([]);
+    setIsModalVisible(false); // Close the modal after submission
   };
+
+  // Delete job from table
+  const handleDeleteJob = (title) => {
+    const updatedJobs = jobs.filter((job) => job.title !== title);
+    setJobs(updatedJobs);
+    message.success("Job deleted successfully!");
+  };
+
+  // Table columns for displaying job details
+  const columns = [
+    {
+      title: "Job Title",
+      dataIndex: "title",
+      key: "title"
+    },
+    {
+      title: "Job Description",
+      dataIndex: "description",
+      key: "description"
+    },
+    {
+      title: "Job Type",
+      dataIndex: "jobType",
+      key: "jobType"
+    },
+    {
+      title: "Deadline",
+      dataIndex: "deadline",
+      key: "deadline"
+    },
+    {
+      title: "Requirements",
+      dataIndex: "requirements",
+      key: "requirements",
+      render: (requirements) => (
+        <ul>
+          {requirements.map((req, index) => (
+            <li key={index}>{req}</li>
+          ))}
+        </ul>
+      )
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Popconfirm
+          title="Are you sure to delete this job?"
+          onConfirm={() => handleDeleteJob(record.title)}
+          okText="Yes"
+          cancelText="No"
+        >
+          <Button type="link" icon={<DeleteOutlined />} danger />
+        </Popconfirm>
+      )
+    }
+  ];
 
   return (
     <>
       <Admin_nav />
       <Row justify="center" style={{ padding: "20px" }}>
-        <Col xs={24} sm={20} md={16} lg={12} xl={10}>
-          <Card title="Add Job" bordered={false}>
-            <Form form={form} onFinish={onFinish} layout="vertical">
+        <Col xs={24} sm={22} md={20} lg={18} xl={16}>
+          {/* Button to open modal */}
+          <Button type="primary" onClick={showModal} style={{ marginBottom: "20px" }}>
+            Add New Job
+          </Button>
 
+          {/* Job submission form in modal */}
+          <Modal
+            title="Add Job"
+            open={isModalVisible}
+            onCancel={handleCancel}
+            footer={null}
+          >
+            <Form form={form} onFinish={onFinish} layout="vertical">
               {/* Job Title */}
               <Form.Item
                 name="title"
@@ -97,9 +197,12 @@ const AddJobForm = () => {
                     />
                   </Col>
                   <Col xs={8} sm={6}>
-                    <Button type="primary" onClick={handleAddRequirement} icon={<PlusOutlined />} block>
-                      
-                    </Button>
+                    <Button
+                      type="primary"
+                      onClick={handleAddRequirement}
+                      icon={<PlusOutlined />}
+                      block
+                    />
                   </Col>
                 </Row>
               </Form.Item>
@@ -136,8 +239,18 @@ const AddJobForm = () => {
                   Submit Job
                 </Button>
               </Form.Item>
-
             </Form>
+          </Modal>
+
+          {/* Display submitted jobs in a table */}
+          <Card title="Submitted Jobs" bordered={false}>
+            <Table
+              dataSource={jobs}
+              columns={columns}
+              rowKey={(record) => record.title} // Use job title as unique key
+              pagination={{ pageSize: 5 }}
+              scroll={{ x: '100%' }}
+            />
           </Card>
         </Col>
       </Row>
