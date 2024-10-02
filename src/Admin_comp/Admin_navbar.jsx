@@ -49,6 +49,18 @@ function Admin_nav() {
       key: 'cAREER',
       icon: <EditOutlined />,
     },
+    {
+      label: <Link to="/admin/services">Services</Link>,
+      key: 'services',
+      icon: <EditOutlined />,
+    },
+    {
+      label: <Link to="/admin/all_apoiment">All_apoiment</Link>,
+      key: 'all_apoiment',
+      icon: <EditOutlined />,
+    },
+
+    // /admin/all_apoiment
   ];
   return (
     <div>

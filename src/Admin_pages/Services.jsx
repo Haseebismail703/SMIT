@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Modal, Button, Form, Input, Upload, Table, message, Row, Col, Card } from 'antd';
 import { UploadOutlined } from '@ant-design/icons';
+import Admin_nav from '../Admin_comp/Admin_navbar';
 
 const Services = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -64,6 +65,10 @@ const Services = () => {
   };
 
   return (
+
+    <>
+    
+   <Admin_nav/>
     <div style={{ padding: '20px' }}>
       <Row gutter={[16, 16]}>
         <Col xs={24} md={12} lg={8}>
@@ -132,6 +137,8 @@ const Services = () => {
         </Col>
       </Row>
     </div>
+ </>
+
   );
 };
 

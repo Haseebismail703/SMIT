@@ -5,6 +5,7 @@ import Services from './Admin_pages/Services';
 import Admin_login from './Admin_pages/Admin_login';
 import Career from './Admin_pages/Career';
 import Add_job from './Admin_pages/Add_job';
+import All_appoiment from './Admin_pages/All_appoiment';
 function App() {
   return (
     <Router>
@@ -15,6 +16,7 @@ function App() {
         <Route path="/admin/login" element={<Admin_login />} />
         <Route path="/admin/career" element={<Career />} />
         <Route path="/admin/add_job" element={<Add_job />} />
+        <Route path="/admin/all_apoiment" element={<All_appoiment />} />
       </Routes>
     </Router>
   );
