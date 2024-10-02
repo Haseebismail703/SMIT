@@ -1,104 +1,164 @@
-import React from "react";
-import { Row, Col, Card, Form, Input, Button, DatePicker, Select, message } from "antd";
+import React, { useState } from "react";
+import { Table, Input, Button, DatePicker, Row, Col, Card } from "antd";
+import { SearchOutlined } from "@ant-design/icons";
+import moment from "moment";
 import Admin_nav from "../Admin_comp/Admin_navbar";
-const { Option } = Select;
 
-const UserInterviewDetails = () => {
-  const [form] = Form.useForm();
+const { RangePicker } = DatePicker;
 
-  // List of time slots
-  const timeSlots = [
-    "1:00 AM to 1:30 AM", "1:30 AM to 2:00 AM",
-    "2:00 AM to 2:30 AM", "2:30 AM to 3:00 AM",
-    "3:00 AM to 3:30 AM", "3:30 AM to 4:00 AM",
-  ];
+const AppointmentTable = () => {
+    const initialAppointments = [
+        {
+            key: "1",
+            name: "John Doe",
+            location: "New York",
+            date: "2024-10-01",
+            time: "10:00 AM",
+        },
+        {
+            key: "2",
+            name: "Jane Smith",
+            location: "Los Angeles",
+            date: "2024-10-03",
+            time: "2:00 PM",
+        },
+        {
+            key: "3",
+            name: "Samuel Green",
+            location: "San Francisco",
+            date: "2024-10-05",
+            time: "11:00 AM",
+        },
+    ];
 
-  // Submit form
-  const onFinish = (values) => {
-    message.success("Interview details saved successfully!");
-    console.log("Form values: ", values);
-  };
+    const [appointments, setAppointments] = useState(initialAppointments);
+    const [searchName, setSearchName] = useState("");
+    const [filteredAppointments, setFilteredAppointments] = useState(appointments);
+    const [dateRange, setDateRange] = useState(null);
 
-  
-  const onReset = () => {
-    form.resetFields();
-  };
+    const columns = [
+        {
+            title: "Name",
+            dataIndex: "name",
+            key: "name",
+            sorter: (a, b) => a.name.localeCompare(b.name),
+            filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters }) => (
+                <div style={{ padding: 8 }}>
+                    <Input
+                        placeholder="Search by name"
+                        value={selectedKeys[0]}
+                        onChange={(e) => setSelectedKeys(e.target.value ? [e.target.value] : [])}
+                        onPressEnter={() => confirm()}
+                        style={{ width: 188, marginBottom: 8, display: "block" }}
+                    />
+                    <Button
+                        type="primary"
+                        onClick={() => confirm()}
+                        icon={<SearchOutlined />}
+                        size="small"
+                        style={{ width: 90, marginRight: 8 }}
+                    >
+                        Search
+                    </Button>
+                    <Button onClick={() => clearFilters()} size="small" style={{ width: 90 }}>
+                        Reset
+                    </Button>
+                </div>
+            ),
+            filterIcon: (filtered) => <SearchOutlined style={{ color: filtered ? "#1890ff" : undefined }} />,
+            onFilter: (value, record) => record.name.toLowerCase().includes(value.toLowerCase()),
+        },
+        {
+            title: "Location",
+            dataIndex: "location",
+            key: "location",
+            sorter: (a, b) => a.location.localeCompare(b.location),
+        },
+        {
+            title: "Date",
+            dataIndex: "date",
+            key: "date",
+            sorter: (a, b) => moment(a.date).unix() - moment(b.date).unix(),
+        },
+        {
+            title: "Time",
+            dataIndex: "time",
+            key: "time",
+        },
+    ];
 
-  return (
-    <>
-    <Admin_nav/>
+    // Filter by name
+    const handleNameSearch = (value) => {
+        const filteredData = appointments.filter((appointment) =>
+            appointment.name.toLowerCase().includes(value.toLowerCase())
+        );
+        setFilteredAppointments(filteredData);
+    };
 
-    <center>
-        <h1>Add Appoiment</h1>
-    </center>
-    <div style={{ padding: "20px" }}>
-      <Row gutter={16}>
-        {/* Right side with user details */}
-        <Col xs={24} sm={12}>
-          <Card title="User Details" bordered>
-            <p><strong>Name:</strong> John Doe</p>
-            <p><strong>Email:</strong> johndoe@example.com</p>
-            <p><strong>Phone:</strong> (123) 456-7890</p>
-            <p><strong>Address:</strong> 123 Main St, Anytown, USA</p>
-            {/* Add more user details as needed */}
-          </Card>
-        </Col>
-        {/* Left side with interview form */}
-        <Col xs={24} sm={12}>
-          <Card title="Interview Details" bordered>
-            <Form
-              form={form}
-              onFinish={onFinish}
-              layout="vertical"
-            >
-              {/* Interview Location */}
-              <Form.Item
-                label="Interview Location"
-                name="location"
-                rules={[{ required: true, message: "Please enter the interview location!" }]}
-              >
-                <Input placeholder="Enter interview location" />
-              </Form.Item>
+    // Filter by date 
+    const handleDateChange = (dates, dateStrings) => {
+        if (!dates) {
+            setFilteredAppointments(appointments);
+            setDateRange(null);
+            return;
+        }
 
-              {/* Interview Date */}
-              <Form.Item
-                label="Interview Date"
-                name="interviewDate"
-                rules={[{ required: true, message: "Please select the interview date!" }]}
-              >
-                <DatePicker style={{ width: "100%" }} />
-              </Form.Item>
+        const filteredData = appointments.filter((appointment) => {
+            const appointmentDate = moment(appointment.date);
+            return appointmentDate.isBetween(dates[0], dates[1], "days", "[]");
+        });
+        setFilteredAppointments(filteredData);
+        setDateRange(dates);
+    };
 
-              {/* Interview Time */}
-              <Form.Item
-                label="Interview Time"
-                name="interviewTime"
-                rules={[{ required: true, message: "Please select the interview time!" }]}
-              >
-                <Select placeholder="Select interview time">
-                  {timeSlots.map((time, index) => (
-                    <Option key={index} value={time}>
-                      {time}
-                    </Option>
-                  ))}
-                </Select>
-              </Form.Item>
+    return (
 
-              {/* Buttons */}
-              <Form.Item>
-                <Button type="primary" htmlType="submit" style={{ marginRight: "10px" }}>
-                  Submit
-                </Button>
-                <Button onClick={onReset}>Reset</Button>
-              </Form.Item>
-            </Form>
-          </Card>
-        </Col>
-      </Row>
-    </div>
-    </>
-    
-  );
+        <>
+            <Admin_nav />
+            <center>
+                <h1>All appoiment</h1>
+            </center>
+            <Card  bordered={false} style={{ margin: "20px" }}>
+                <Row gutter={[16, 16]}>
+                    
+                    {/* Search by name */}
+                    <Col xs={24} sm={12} md={8}>
+                        <Input
+                            placeholder="Search by Name"
+                            value={searchName}
+                            onChange={(e) => {
+                                setSearchName(e.target.value);
+                                handleNameSearch(e.target.value);
+                            }}
+                            prefix={<SearchOutlined />}
+                            allowClear
+                        />
+                    </Col>
+
+                    {/* Filter by date range */}
+                    <Col xs={24} sm={12} md={8}>
+                        <RangePicker
+                            onChange={handleDateChange}
+                            value={dateRange}
+                            allowClear
+                            style={{ width: "100%" }}
+                        />
+                    </Col>
+                </Row>
+
+                {/* Appointments Table */}
+                <Table
+                    columns={columns}
+                    dataSource={filteredAppointments}
+                    pagination={{ pageSize: 5 }}
+                    style={{ marginTop: 20 }}
+                    scroll={{x : '100%'}}
+                />
+            </Card>
+        </>
+
+    );
 };
 
-export default UserInterviewDetails;
+export default AppointmentTable;
+

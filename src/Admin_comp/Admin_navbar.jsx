@@ -46,7 +46,7 @@ function Admin_nav() {
     },
     {
       label: <Link to="/admin/career">Career</Link>,
-      key: 'cAREER',
+      key: 'Career',
       icon: <EditOutlined />,
     },
     {
@@ -55,7 +55,12 @@ function Admin_nav() {
       icon: <EditOutlined />,
     },
     {
-      label: <Link to="/admin/all_apoiment">All_apoiment</Link>,
+      label: <Link to="/admin/creat_appoiment">Add_apoiment</Link>,
+      key: 'add_apoiment',
+      icon: <EditOutlined />,
+    },
+    {
+      label: <Link to="/admin/all_appoiment">All_apoiment</Link>,
       key: 'all_apoiment',
       icon: <EditOutlined />,
     },
